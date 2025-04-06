@@ -8,8 +8,9 @@ import GlobalError from "./middlewares/GlobalError";
 import AppError from "./utils/error/AppError";
 import { HTTP_STATUS } from "./response/httpStatusCode";
 
-import routerTest from "./routes/test.route";
-
+//import routerTest from "./routes/test.route";
+import postRoutes from "./routes/post.routes";
+import interactRoutes from "./routes/interact.routes"; 
 const app: Application = express();
 
 // ==============================
@@ -22,15 +23,20 @@ app.use(cookieParser()); // Parse cookie
 app.use(express.json({ limit: "10mb" })); // Parse JSON body với giới hạn dung lượng
 app.use((req, res, next) => {
   (req as any).requestTime = new Date().toISOString(); // Ghi lại thời gian request
-  // Thêm tuỳ ý
   next();
 });
 
 // ==============================
 // Khai báo route
 // ==============================
-app.use(`${URL_API_V1}/test`, routerTest);
-
+app.get('/', (req: Request, res: Response) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'Welcome to the Post API!',
+  });
+});
+app.use(`${URL_API_V1}/posts`, postRoutes);
+app.use(`${URL_API_V1}/interactions`, interactRoutes);
 // ==============================
 // Xử lý route không tồn tại
 // ==============================
