@@ -1,13 +1,10 @@
 import { prisma } from '../config/database';
-import { CreatePostDto } from '../types/post.types';
+import { VideoUploadData } from '../types/post.types';
 import { v4 as uuidv4 } from 'uuid';
 import { Prisma } from '@prisma/client';
 import { MediaTypeEnum } from '@prisma/client';
 
-interface VideoUploadData {
-    reelData: CreatePostDto;
-    videoFile: Express.Multer.File;
-}
+
 
 export const uploadReelVideo = async ({ reelData, videoFile }: VideoUploadData) => {
     const { user_id, title, content, visibility = 'public', hashtags = [], tagged_friends = [] } = reelData;
@@ -75,4 +72,74 @@ export const uploadReelVideo = async ({ reelData, videoFile }: VideoUploadData) 
     } catch (error) {
         throw new Error(`Không tải được video: ${error}`);
     }
+
+};
+export const getReelById = async (reelId: string) => {
+    const reel = await prisma.posts.findUnique({
+        where: { id: reelId },
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    username: true,
+                    fullname: true,
+                }
+            },
+            media: {
+                select: {
+                    mediaUrl: true,
+                    mediaType: true,
+                }
+            },
+
+        }
+
+
+    }
+    )
+    if (!reel) {
+        throw new Error('Không tìm thấy reel');
+    }
+    const hashtags = await prisma.hashtag.findMany({
+        select: { name: true },
+        where: {
+            posts: {
+                some: {
+                    postId: reelId,
+                },
+            },
+        },
+    });
+    const taggedFriends = await prisma.users.findMany({
+        select: {
+            id: true,
+            username: true,
+            fullname: true,
+        },
+        where: {
+            taggedInPosts: {
+                some: {
+                    postId: reelId,
+                },
+            },
+        },
+    });
+    return {
+        ...reel,
+        hashtags: hashtags.map((hashtag) => hashtag.name),
+        tagged_friends: taggedFriends
+    };
+};
+export const deleteReel = async (reelId: string) => {
+    return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const comments = await tx.comments.findMany({ where: { postId: reelId } });
+        for (const comment of comments) {
+            await tx.comments.deleteMany({ where: { parentId: comment.id } });
+        }
+        await tx.postHashtags.deleteMany({ where: { postId: reelId } });
+        await tx.postTagFriend.deleteMany({ where: { postId: reelId } });
+        await tx.media.deleteMany({ where: { postId: reelId } });
+        await tx.notifications.deleteMany({ where: { postId: reelId } });
+        return await tx.posts.delete({ where: { id: reelId } });
+    });
 };

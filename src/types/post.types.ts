@@ -21,3 +21,7 @@ export interface UpdatePostDto {
   hashtags?: string[];
   tagged_friends?: string[];
 }
+export interface VideoUploadData {
+  reelData: CreatePostDto;
+  videoFile: Express.Multer.File;
+}
