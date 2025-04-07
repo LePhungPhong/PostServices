@@ -83,6 +83,7 @@ export const getReelById = async (reelId: string) => {
                     id: true,
                     username: true,
                     fullname: true,
+                    avatarUrl: true,
                 }
             },
             media: {

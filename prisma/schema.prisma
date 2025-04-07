@@ -39,9 +39,10 @@ enum PostTypeEnum{
 }
 // Models
 model Users {
-  id       String  @id @default(uuid())
-  username String  @unique
-  fullname String?
+  id         String  @id @default(uuid())
+  username   String  @unique
+  fullname   String?
+  avatarUrl  String?  @default("https://i.pinimg.com/736x/c6/e5/65/c6e56503cfdd87da299f72dc416023d4.jpg")
 
   posts                 Posts[] // Quan hệ 1-n với Posts
   likes                 Likes[] // Quan hệ 1-n với Likes
