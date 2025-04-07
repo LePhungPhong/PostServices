@@ -132,6 +132,8 @@ export const getPostInteractions = async (postId: string) => {
         user: {
           select: {
             username: true,
+            fullname: true,
+            avatarUrl: true
 
           }
         },

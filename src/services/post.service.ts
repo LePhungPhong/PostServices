@@ -190,6 +190,7 @@ export const getPostById = async (postId: string): Promise<any> => {
           id: true,
           username: true,
           fullname: true,
+          avatarUrl: true,
         }
       },
       media: true,

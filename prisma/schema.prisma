@@ -1,0 +1,182 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum VisibilityEnum {
+  public
+  private
+  friends
+}
+
+enum CensorEnum {
+  approved
+  pending
+  rejected
+  under_review
+}
+
+enum MediaTypeEnum {
+  image
+  video
+  file
+}
+
+enum NotificationTypeEnum {
+  like
+  comment
+  share
+}
+enum PostTypeEnum{
+  post
+  reel
+  story
+}
+// Models
+model Users {
+  id         String  @id @default(uuid())
+  username   String  @unique
+  fullname   String?
+  avatarUrl  String?  @default("https://i.pinimg.com/736x/c6/e5/65/c6e56503cfdd87da299f72dc416023d4.jpg")
+
+  posts                 Posts[] // Quan hệ 1-n với Posts
+  likes                 Likes[] // Quan hệ 1-n với Likes
+  comments              Comments[] // Quan hệ 1-n với Comments
+  shares                Shares[] // Quan hệ 1-n với Shares
+  newsFeed              NewsFeed[] // Quan hệ 1-n với NewsFeed
+  receivedNotifications Notifications[] @relation("ReceiverRelation") // Quan hệ ngược cho receiver
+  sentNotifications     Notifications[] @relation("SenderRelation") // Quan hệ ngược cho sender
+  taggedInPosts         PostTagFriend[] @relation("TaggedUser")
+  taggedByPosts         PostTagFriend[] @relation("TaggedBy")
+}
+
+model Posts {
+  id         String         @id @default(uuid())
+  userId     String
+  title      String?
+  content    String?
+  postType   PostTypeEnum   @default(post)
+  visibility VisibilityEnum @default(public)
+  censor     CensorEnum     @default(pending)
+  shareCount Int            @default(0)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @default(now())
+
+  user          Users           @relation(fields: [userId], references: [id])
+  hashtags      PostHashtags[] // Quan hệ n-n với Hashtag
+  taggedFriends PostTagFriend[] // Quan hệ n-n với Users qua PostTagFriend
+  media         Media[] // Quan hệ 1-n với Media
+  likes         Likes[] // Quan hệ 1-n với Likes
+  comments      Comments[] // Quan hệ 1-n với Comments
+  shares        Shares[] // Quan hệ 1-n với Shares
+  newsFeed      NewsFeed[] // Quan hệ 1-n với NewsFeed
+  notifications Notifications[] // Quan hệ 1-n với Notifications
+}
+
+model Hashtag {
+  id        String   @id @default(uuid())
+  name      String   @unique @db.VarChar(100)
+  createdAt DateTime @default(now())
+
+  posts PostHashtags[] // Quan hệ n-n với Posts
+}
+
+model PostHashtags {
+  postId    String
+  hashtagId String
+
+  post    Posts   @relation(fields: [postId], references: [id])
+  hashtag Hashtag @relation(fields: [hashtagId], references: [id])
+
+  @@id([postId, hashtagId])
+}
+
+model PostTagFriend {
+  id        String   @id @default(uuid())
+  postId    String
+  userId    String
+  taggedBy  String
+  createdAt DateTime @default(now())
+  post         Posts @relation(fields: [postId], references: [id])
+  user         Users @relation("TaggedUser", fields: [userId], references: [id])
+  taggedByUser Users @relation("TaggedBy", fields: [taggedBy], references: [id])
+}
+
+model Media {
+  id        String        @id @default(uuid())
+  postId    String
+  mediaUrl  String
+  mediaType MediaTypeEnum
+  createdAt DateTime      @default(now())
+  post Posts @relation(fields: [postId], references: [id])
+}
+
+model Likes {
+  id        String   @id @default(uuid())
+  userId    String?
+  postId    String
+  createdAt DateTime @default(now())
+
+  user Users? @relation(fields: [userId], references: [id])
+  post Posts  @relation(fields: [postId], references: [id])
+
+  @@unique([userId, postId])
+}
+
+model Comments {
+  id        String   @id @default(uuid())
+  userId    String?
+  postId    String
+  parentId  String?
+  content   String
+  createdAt DateTime @default(now())
+
+  user          Users?          @relation(fields: [userId], references: [id])
+  post          Posts           @relation(fields: [postId], references: [id])
+  parent        Comments?       @relation("CommentReplies", fields: [parentId], references: [id])
+  replies       Comments[]      @relation("CommentReplies")
+  notifications Notifications[]
+}
+
+model Shares {
+  id        String   @id @default(uuid())
+  userId    String?
+  postId    String
+  createdAt DateTime @default(now())
+  user Users? @relation(fields: [userId], references: [id])
+  post Posts  @relation(fields: [postId], references: [id])
+}
+
+model NewsFeed {
+  id        String   @id @default(uuid())
+  userId    String?
+  postId    String
+  reason    String?  @db.VarChar(50)
+  score     Float
+  isNew     Boolean?
+  createdAt DateTime @default(now())
+
+  user Users? @relation(fields: [userId], references: [id])
+  post Posts  @relation(fields: [postId], references: [id])
+}
+
+model Notifications {
+  id               String               @id @default(uuid())
+  receiverId       String?
+  senderId         String?
+  postId           String?
+  commentId        String?
+  notificationType NotificationTypeEnum
+  message          String
+  isRead           Boolean              @default(false)
+  createdAt        DateTime             @default(now())
+  receiver Users?    @relation("ReceiverRelation", fields: [receiverId], references: [id])
+  sender   Users?    @relation("SenderRelation", fields: [senderId], references: [id])
+  post     Posts?    @relation(fields: [postId], references: [id])
+  comment  Comments? @relation(fields: [commentId], references: [id])
+}
