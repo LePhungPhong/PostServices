@@ -7,6 +7,9 @@ export const likePost = async (req: Request, res: Response) => {
   try {
     const postId = req.params.postId;
     const userId = req.body.user_id;
+    if (!userId) {
+      return res.status(400).json({ error: 'ID người dùng là bắt buộc' });
+    }
 
     if (!userId) {
       return res.status(400).json({ error: 'ID người dùng là bắt buộc' });
@@ -42,7 +45,6 @@ export const createComment = async (req: Request, res: Response) => {
   try {
     const postId = req.params.postId;
     const { user_id, content, parent_id } = req.body;
-
     if (!user_id || !content) {
       return res.status(400).json({
         error: 'ID người dùng và nội dung là bắt buộc'

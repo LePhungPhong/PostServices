@@ -54,8 +54,8 @@ export const uploadMediaMiddleware = (req: Request, res: Response, next: NextFun
     busboy.on('finish', async () => {
         try {
             await Promise.all(uploadPromises);
-            req.body.mediaUrls = mediaUrls; // attach to body
-            next(); // continue to controller
+            req.body.mediaUrls = mediaUrls;
+            next();
         } catch (err) {
             console.error('Lỗi upload file:', err);
             res.status(500).json({ error: 'Upload thất bại' });

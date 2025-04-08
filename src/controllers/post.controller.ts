@@ -5,8 +5,6 @@ import { CreatePostDto, UpdatePostDto } from '../types/post.types';
 export const createPost = async (req: Request, res: Response) => {
   try {
     const postData: CreatePostDto = req.body;
-
-    // Kiểm tra dữ liệu đầu vào
     if (!postData.user_id) {
       return res.status(400).json({ error: 'ID người dùng là bắt buộc' });
     }
