@@ -3,7 +3,6 @@ import * as reelController from '../controllers/reel.controller';
 import { asyncHandler } from '../middlewares/asyncHandler';
 import { uploadMediaMiddleware } from '../middlewares/uploadHelper';
 
-
 const router = Router();
 /**
  * @route [POST] /reel/:id
@@ -11,7 +10,7 @@ const router = Router();
  * @access Private
  */
 router.post(
-    '/reel/:id', uploadMediaMiddleware,
+    '/reel/', uploadMediaMiddleware,
     asyncHandler(reelController.createReel)
 );
 /**
