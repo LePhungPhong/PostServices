@@ -68,23 +68,26 @@ export const createComment = async (userId: string, postId: string, content: str
     if (!parentComment) throw new Error('Không tìm thấy bình luận cha');
   }
 
-  return await prisma.comments.create({
-    data: {
-      id: uuidv4(),
-      postId,
-      userId,
-      content,
-      parentId: parentId || null
-    },
-    include: {
-      user: {
-        select: {
-          username: true,
+  return await prisma.$transaction(async (tx) => {
+    prisma.comments.create({
+      data: {
+        id: uuidv4(),
+        postId,
+        userId,
+        content,
+        parentId: parentId || null
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
 
+          }
         }
       }
-    }
-  });
+    });
+  })
+
 };
 
 export const deleteComment = async (commentId: string) => {
@@ -92,6 +95,10 @@ export const deleteComment = async (commentId: string) => {
   if (!comment) throw new Error('Không tìm thấy bình luận');
 
   await prisma.comments.deleteMany({ where: { parentId: commentId } });
+  await prisma.posts.update({
+    where: { id: comment.postId },
+    data: { commentCount: { decrement: -1 } }
+  })
 
   return await prisma.comments.delete({ where: { id: commentId } });
 }
