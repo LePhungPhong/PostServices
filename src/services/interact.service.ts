@@ -14,36 +14,50 @@ export const likePost = async (userId: string, postId: string) => {
     }
   });
 
-  if (existingLike) throw new Error('Bạn đã thích bài viết này rồi');
+  if (existingLike)
+    return unlikePost(userId, postId);
 
-  return await prisma.likes.create({
-    data: {
-      id: uuidv4(),
-      userId,
-      postId
-    },
-    include: {
-      user: {
-        select: {
-          username: true,
 
+  return await prisma.$transaction(async (tx) => {
+    tx.likes.create({
+      data: {
+        id: uuidv4(),
+        userId,
+        postId
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+
+          }
         }
       }
     }
-  });
-};
+    )
+    tx.posts.update({
+      where: { id: postId },
+      data: { likeCount: { increment: 1 } }
+    })
+  })
+}
 
 export const unlikePost = async (userId: string, postId: string) => {
-  return await prisma.likes.delete({
-    where: {
-      userId_postId: {
-        userId,
-        postId
+  return await prisma.$transaction(async (tx) => {
+    tx.likes.delete({
+      where: {
+        userId_postId: {
+          userId,
+          postId
+        }
       }
-    }
+    });
+    tx.posts.update({
+      where: { id: postId },
+      data: { likeCount: { decrement: -1 } }
+    })
   });
 };
-
 // COMMENT
 export const createComment = async (userId: string, postId: string, content: string, parentId?: string) => {
   const post = await prisma.posts.findUnique({ where: { id: postId } });

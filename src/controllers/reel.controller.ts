@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import * as reelService from '../services/reel.service';
 import { CreatePostDto } from '../types/post.types';
 
-export const uploadReel = async (req: Request, res: Response) => {
+export const createReel = async (req: Request, res: Response) => {
     try {
         const reelData: CreatePostDto = req.body;
         const mediaUrls = req.body.mediaUrls as string[];
@@ -20,7 +20,7 @@ export const uploadReel = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Chỉ được đăng 1 video trong reel' });
         }
 
-        const newReel = await reelService.uploadReelVideo({
+        const newReel = await reelService.createReel({
             reelData,
             mediaUrls: videoUrls[0],
         });

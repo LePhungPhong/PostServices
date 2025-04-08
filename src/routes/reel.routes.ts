@@ -12,7 +12,7 @@ const router = Router();
  */
 router.post(
     '/reel/:id', uploadMediaMiddleware,
-    asyncHandler(reelController.uploadReel)
+    asyncHandler(reelController.createReel)
 );
 /**
  * @route [GET] /reel/:id
@@ -31,3 +31,4 @@ router.get(
 router.delete(
     '/reel/:id', asyncHandler(reelController.deleteReel)
 );
+export default router;

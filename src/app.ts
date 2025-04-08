@@ -10,7 +10,9 @@ import { HTTP_STATUS } from "./response/httpStatusCode";
 
 //import routerTest from "./routes/test.route";
 import postRoutes from "./routes/post.routes";
-import interactRoutes from "./routes/interact.routes"; 
+import interactRoutes from "./routes/interact.routes";
+import storyRoutes from "./routes/story.route";
+import reelRoutes from "./routes/reel.routes";
 const app: Application = express();
 
 // ==============================
@@ -37,6 +39,8 @@ app.get('/', (req: Request, res: Response) => {
 });
 app.use(`${URL_API_V1}/posts`, postRoutes);
 app.use(`${URL_API_V1}/interactions`, interactRoutes);
+app.use(`${URL_API_V1}/stories`, storyRoutes);
+app.use(`${URL_API_V1}/reels`, reelRoutes);
 // ==============================
 // Xử lý route không tồn tại
 // ==============================

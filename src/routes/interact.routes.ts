@@ -12,13 +12,6 @@ const router = Router();
 router.post('/like/:postId', asyncHandler(interactController.likePost));
 
 /**
- * @route [DELETE] /interactions/like/:postId
- * @desc Bỏ thích bài viết
- * @access Private
- */
-router.delete('/like/:postId', asyncHandler(interactController.unlikePost));
-
-/**
  * @route [POST] /interactions/comment/:postId
  * @desc Tạo bình luận mới cho bài viết
  * @access Private
