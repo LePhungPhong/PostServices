@@ -1,7 +1,7 @@
 
 import { Request, Response } from 'express';
 import * as interactService from '../services/interact.service';
-import { stat } from 'fs';
+import { error } from 'console';
 
 export const likePost = async (req: Request, res: Response) => {
   try {
@@ -10,14 +10,16 @@ export const likePost = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(400).json({ message: 'ID người dùng là bắt buộc' });
     }
-
     const like = await interactService.likePost(userId, postId);
-    res.status(201).json({ message: 'Thích bài viết thành công', status: 'success', data: like });
+    if ('message' in like) {
+      res.status(200).json({ message: like.message, status: 'success', data: null });
+    } else {
+      res.status(201).json({ message: 'Thích bài viết thành công', status: 'success', data: null });
+    }
   } catch (message) {
     res.status(500).json({ message: 'Không thể thích bài viết' });
   }
 };
-
 export const unlikePost = async (req: Request, res: Response) => {
   try {
     const postId = req.params.postId;
@@ -57,15 +59,19 @@ export const createComment = async (req: Request, res: Response) => {
 export const deleteComment = async (req: Request, res: Response) => {
   try {
     const commentId = req.params.commentId;
-    const userId = req.body.user_id;
+    // const userId = req.body.user_id;
 
-    if (!userId) {
-      return res.status(400).json({ message: 'ID người dùng là bắt buộc' });
-    }
+    // if (!userId) {
+    //   return res.status(400).json({ message: 'ID người dùng là bắt buộc' });
+    // }
 
     await interactService.deleteComment(commentId);
+
     res.status(200).json({ message: 'Xóa bình luận thành công', status: 'success', data: null });
-  } catch (message) {
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Không tìm thấy bình luận') {
+      return res.status(404).json({ message: error.message });
+    }
     res.status(500).json({ message: 'Không thể xóa bình luận' });
   }
 }

@@ -5,13 +5,22 @@ import { error } from 'console';
 
 export const createStory = async (req: Request, res: Response) => {
     try {
-        const storyData: CreatePostDto = req.body;
-        const mediaUrl = req.body.mediaUrl as string[];
+
+        let storyData: CreatePostDto = req.body.storyData;
+        const mediaUrl = req.body.mediaUrl as string;
+
+        if (typeof storyData === 'string') {
+            try {
+                storyData = JSON.parse(storyData);
+            } catch (parseError) {
+                return res.status(400).json({ message: 'Dữ liệu storyData không hợp lệ' });
+            }
+        }
         const newstory = await storyService.createStory({
             storyData,
-            mediaUrl: mediaUrl[0],
+            mediaUrl: mediaUrl,
         });
-        return res.status(201).json(newstory);
+        return res.status(201).json({ message: 'Tạo story thành công', status: 'success', data: newstory });
     } catch (message) {
         return res.status(500).json({ message: 'Không thể upload story' });
     }

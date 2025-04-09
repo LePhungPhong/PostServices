@@ -18,11 +18,11 @@ router.post('/like/:postId', asyncHandler(interactController.likePost));
  */
 router.post('/comment/:postId', asyncHandler(interactController.createComment));
 /**
- * @route [DELETE] /interactions/comment/:postId
+ * @route [DELETE] /interactions/comment/:commentId
  * @desc Xoa bình luận của bài viết 
  * @access Private
  */
-router.delete('/comment/:postId', asyncHandler(interactController.deleteComment));
+router.delete('/comment/:commentId', asyncHandler(interactController.deleteComment));
 /**
  * @route [POST] /interactions/share/:postId
  * @desc Chia sẻ bài viết

@@ -2,10 +2,12 @@ import { prisma } from '../config/database';
 import { CreatePostDto } from '../types/post.types';
 import { v4 as uuidv4 } from 'uuid';
 import { Prisma } from '@prisma/client';
-import { MediaTypeEnum } from '@prisma/client';
+
 
 export const createStory = async ({ storyData, mediaUrl }: { storyData: CreatePostDto; mediaUrl: string }) => {
     const { user_id, title, content, visibility = 'public', hashtags = [], tagged_friends = [] } = storyData;
+    console.log('📦 Dữ liệu parse:', { user_id, title, content, visibility });
+    console.log('📦 Dữ liệu mediaUrl:', mediaUrl);
     if (!mediaUrl) {
         throw new Error('Không có tệp video nào được cung cấp');
     }
@@ -24,7 +26,7 @@ export const createStory = async ({ storyData, mediaUrl }: { storyData: CreatePo
             data: {
                 id: uuidv4(),
                 mediaUrl: mediaUrl,
-                mediaType: MediaTypeEnum.image || MediaTypeEnum.video,
+                mediaType: 'image',
                 postId: newStory.id,
             },
         });
@@ -118,11 +120,11 @@ export const getStoryById = async (storyId: string) => {
 }
 export const deleteStory = async (storyId: string) => {
     return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        tx.comments.deleteMany({ where: { postId: storyId } });
-        tx.postHashtags.deleteMany({ where: { postId: storyId } });
-        tx.postTagFriend.deleteMany({ where: { postId: storyId } });
-        tx.media.deleteMany({ where: { postId: storyId } });
-        tx.notifications.deleteMany({ where: { postId: storyId } });
+        await tx.comments.deleteMany({ where: { postId: storyId } });
+        await tx.postHashtags.deleteMany({ where: { postId: storyId } });
+        await tx.postTagFriend.deleteMany({ where: { postId: storyId } });
+        await tx.media.deleteMany({ where: { postId: storyId } });
+        await tx.notifications.deleteMany({ where: { postId: storyId } });
         return tx.posts.delete({ where: { id: storyId } });
     });
 };

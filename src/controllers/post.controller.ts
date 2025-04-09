@@ -10,7 +10,7 @@ export const createPost = async (req: Request, res: Response) => {
     }
 
     const newPost = await postService.createPost(postData);
-    res.status(201).json({
+    res.status(200).json({
       status: 'success',
       message: 'Tạo bài viết thành công',
       data: newPost

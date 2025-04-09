@@ -4,18 +4,31 @@ import { CreatePostDto } from '../types/post.types';
 
 export const createReel = async (req: Request, res: Response) => {
     try {
-        const reelData: CreatePostDto = req.body;
-        const mediaUrls = req.body.mediaUrls as string[];
+        console.log('📥 Request body:', req.body);
+
+        let reelData = req.body.reelData;
+        const mediaUrls = req.body.mediaUrls;
+
+        if (typeof reelData === 'string') {
+            try {
+                reelData = JSON.parse(reelData);
+            } catch (parseError) {
+                return res.status(400).json({ message: 'Dữ liệu reelData không hợp lệ' });
+            }
+        }
+
         const newReel = await reelService.createReel({
             reelData,
-            mediaUrls: mediaUrls[0],
+            mediaUrls,
         });
 
-        return res.status(201).json({ message: 'Tạo reel thành công', status: 'success', data: newReel });
-    } catch (error) {
-        return res.status(500).json({ message: 'Không thể upload reel' });
+        return res.status(200).json({ message: 'Tạo reel thành công', status: 'success', data: newReel });
+    } catch (error: any) {
+        console.error('Lỗi upload reel:', error);
+        return res.status(500).json({ message: 'Không thể upload reel', error: error.message || error });
     }
 };
+
 
 export const getReelById = async (req: Request, res: Response) => {
     try {

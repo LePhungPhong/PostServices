@@ -6,8 +6,6 @@ import { Prisma } from '@prisma/client';
 
 export const createReel = async ({ reelData, mediaUrls }: { reelData: CreatePostDto, mediaUrls: string }) => {
     const { user_id, title, content, visibility = 'public', hashtags = [], tagged_friends = [] } = reelData;
-
-
     return await prisma.$transaction(async (tx) => {
         const newReel = await tx.posts.create({
             data: {
@@ -118,11 +116,11 @@ export const getReelById = async (reelId: string) => {
 
 export const deleteReel = async (reelId: string) => {
     return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        tx.comments.deleteMany({ where: { postId: reelId } });
-        tx.postHashtags.deleteMany({ where: { postId: reelId } });
-        tx.postTagFriend.deleteMany({ where: { postId: reelId } });
-        tx.media.deleteMany({ where: { postId: reelId } });
-        tx.notifications.deleteMany({ where: { postId: reelId } });
+        await tx.comments.deleteMany({ where: { postId: reelId } });
+        await tx.postHashtags.deleteMany({ where: { postId: reelId } });
+        await tx.postTagFriend.deleteMany({ where: { postId: reelId } });
+        await tx.media.deleteMany({ where: { postId: reelId } });
+        await tx.notifications.deleteMany({ where: { postId: reelId } });
         return tx.posts.delete({ where: { id: reelId } });
     });
 };

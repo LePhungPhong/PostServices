@@ -14,12 +14,14 @@ export const likePost = async (userId: string, postId: string) => {
     }
   });
 
-  if (existingLike)
-    return unlikePost(userId, postId);
+  if (existingLike) {
+    await unlikePost(userId, postId);
+    return { message: 'Đã bỏ thích bài viết trước đó' };
+  }
 
 
   return await prisma.$transaction(async (tx) => {
-    tx.likes.create({
+    const like = await tx.likes.create({
       data: {
         id: uuidv4(),
         userId,
@@ -35,16 +37,17 @@ export const likePost = async (userId: string, postId: string) => {
       }
     }
     )
-    tx.posts.update({
+    await tx.posts.update({
       where: { id: postId },
       data: { likeCount: { increment: 1 } }
-    })
+    });
+    return like;
   })
 }
 
 export const unlikePost = async (userId: string, postId: string) => {
   return await prisma.$transaction(async (tx) => {
-    tx.likes.delete({
+    const like = await tx.likes.delete({
       where: {
         userId_postId: {
           userId,
@@ -52,10 +55,11 @@ export const unlikePost = async (userId: string, postId: string) => {
         }
       }
     });
-    tx.posts.update({
+    await tx.posts.update({
       where: { id: postId },
-      data: { likeCount: { decrement: -1 } }
+      data: { likeCount: { decrement: 1 } }
     })
+    return like;
   });
 };
 // COMMENT
@@ -69,7 +73,7 @@ export const createComment = async (userId: string, postId: string, content: str
   }
 
   return await prisma.$transaction(async (tx) => {
-    prisma.comments.create({
+    await prisma.comments.create({
       data: {
         id: uuidv4(),
         postId,
@@ -86,22 +90,55 @@ export const createComment = async (userId: string, postId: string, content: str
         }
       }
     });
+    await tx.posts.update({
+      where: { id: postId },
+      data: { commentCount: { increment: 1 } }
+    });
   })
 
 };
 
 export const deleteComment = async (commentId: string) => {
-  const comment = await prisma.comments.findUnique({ where: { id: commentId } });
-  if (!comment) throw new Error('Không tìm thấy bình luận');
+  const comment = await prisma.comments.findUnique({
+    where: { id: commentId },
+  });
 
-  await prisma.comments.deleteMany({ where: { parentId: commentId } });
-  await prisma.posts.update({
-    where: { id: comment.postId },
-    data: { commentCount: { decrement: -1 } }
-  })
+  if (!comment) {
+    throw new Error('Không tìm thấy bình luận');
+  }
 
-  return await prisma.comments.delete({ where: { id: commentId } });
-}
+  return await prisma.$transaction(async (tx) => {
+    const replies = await tx.comments.findMany({
+      where: { parentId: commentId },
+      select: { id: true },
+    });
+
+    const totalToDelete = replies.length + 1;
+
+    if (replies.length > 0) {
+      await tx.comments.deleteMany({
+        where: { parentId: commentId },
+      });
+    }
+
+    await tx.comments.delete({
+      where: { id: commentId },
+    });
+
+    await tx.posts.update({
+      where: { id: comment.postId },
+      data: {
+        commentCount: {
+          decrement: totalToDelete,
+        },
+      },
+    });
+
+    return { deleted: true, totalDeleted: totalToDelete };
+  });
+};
+
+
 // SHARE
 export const sharePost = async (userId: string, postId: string) => {
   const post = await prisma.posts.findUnique({ where: { id: postId } });
