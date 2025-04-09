@@ -3,7 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 
-import { corsOptions, limiter, URL_API_V1 } from "./global/settingApp";
+import { corsOptions, URL_API_V1 } from "./global/settingApp";
 import GlobalError from "./middlewares/GlobalError";
 import AppError from "./utils/error/AppError";
 import { HTTP_STATUS } from "./response/httpStatusCode";

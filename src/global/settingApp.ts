@@ -1,5 +1,5 @@
 import { CorsOptions } from "cors";
-import rateLimit from "express-rate-limit";
+//import rateLimit from "express-rate-limit";
 
 export const corsOptions: CorsOptions = {
   origin: "*", // Định nghĩa các nguồn gốc được phép

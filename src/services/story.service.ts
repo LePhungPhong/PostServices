@@ -4,23 +4,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { Prisma } from '@prisma/client';
 import { MediaTypeEnum } from '@prisma/client';
 
-const detectMediaType = (url: string): MediaTypeEnum => {
-    const extension = url.split('.').pop()?.toLowerCase();
-    switch (extension) {
-        case 'jpg':
-        case 'jpeg':
-        case 'png':
-        case 'gif':
-            return MediaTypeEnum.image;
-        case 'mp4':
-        case 'mov':
-        case 'avi':
-            return MediaTypeEnum.video;
-        default:
-            console.error(`Không thể nhận diện định dạng: ${extension}`);
-            return MediaTypeEnum.file;
-    }
-};
 export const createStory = async ({ storyData, mediaUrl }: { storyData: CreatePostDto; mediaUrl: string }) => {
     const { user_id, title, content, visibility = 'public', hashtags = [], tagged_friends = [] } = storyData;
     if (!mediaUrl) {
@@ -37,19 +20,15 @@ export const createStory = async ({ storyData, mediaUrl }: { storyData: CreatePo
                 postType: 'story',
             },
         });
+        await tx.media.create({
+            data: {
+                id: uuidv4(),
+                mediaUrl: mediaUrl,
+                mediaType: MediaTypeEnum.image || MediaTypeEnum.video,
+                postId: newStory.id,
+            },
+        });
 
-        for (const url of mediaUrl) {
-
-
-            await tx.media.create({
-                data: {
-                    id: uuidv4(),
-                    mediaUrl: url,
-                    mediaType: detectMediaType(url),
-                    postId: newStory.id,
-                },
-            });
-        }
 
         for (const tagName of hashtags) {
             let hashtag = await tx.hashtag.findUnique({ where: { name: tagName } });

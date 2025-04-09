@@ -3,23 +3,7 @@ import { CreatePostDto, UpdatePostDto } from '../types/post.types';
 import { v4 as uuidv4 } from 'uuid';
 import { Prisma, MediaTypeEnum } from '@prisma/client';
 
-const detectMediaType = (url: string): MediaTypeEnum => {
-  const extension = url.split('.').pop()?.toLowerCase();
-  switch (extension) {
-    case 'jpg':
-    case 'jpeg':
-    case 'png':
-    case 'gif':
-      return MediaTypeEnum.image;
-    case 'mp4':
-    case 'mov':
-    case 'avi':
-      return MediaTypeEnum.video;
-    default:
-      console.error(`Không thể nhận diện định dạng: ${extension}`);
-      return MediaTypeEnum.file;
-  }
-};
+
 
 export const createPost = async (postData: CreatePostDto) => {
   const {
@@ -48,7 +32,7 @@ export const createPost = async (postData: CreatePostDto) => {
         id: uuidv4(),
         postId: newPost.id,
         mediaUrl,
-        mediaType: detectMediaType(mediaUrl),
+        mediaType: MediaTypeEnum.image || MediaTypeEnum.video,
       }));
 
       await tx.media.createMany({ data: mediaData });

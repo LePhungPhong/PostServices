@@ -7,9 +7,6 @@ import { Prisma } from '@prisma/client';
 export const createReel = async ({ reelData, mediaUrls }: { reelData: CreatePostDto, mediaUrls: string }) => {
     const { user_id, title, content, visibility = 'public', hashtags = [], tagged_friends = [] } = reelData;
 
-    if (!mediaUrls || mediaUrls.length === 0) {
-        throw new Error('Không có file media nào được tải lên');
-    }
 
     return await prisma.$transaction(async (tx) => {
         const newReel = await tx.posts.create({
@@ -22,19 +19,14 @@ export const createReel = async ({ reelData, mediaUrls }: { reelData: CreatePost
                 postType: 'reel',
             },
         });
-
-        for (const url of mediaUrls) {
-
-
-            await tx.media.create({
-                data: {
-                    id: uuidv4(),
-                    mediaUrl: url,
-                    mediaType: 'video',
-                    postId: newReel.id,
-                },
-            });
-        }
+        await tx.media.create({
+            data: {
+                id: uuidv4(),
+                mediaUrl: mediaUrls,
+                mediaType: 'video',
+                postId: newReel.id,
+            },
+        });
 
         for (const tagName of hashtags) {
             let hashtag = await tx.hashtag.findUnique({ where: { name: tagName } });

@@ -10,7 +10,7 @@ export interface CreatePostDto {
   hashtags?: string[];
   tagged_friends?: string[];
   mediaUrls?: string[];
-  mediaType: MediaTypeEnum;
+  mediaType?: MediaTypeEnum;
   postType: PostTypeEnum;
 }
 
