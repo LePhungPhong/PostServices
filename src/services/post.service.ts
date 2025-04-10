@@ -13,7 +13,7 @@ export const createPost = async (postData: CreatePostDto) => {
     tagged_friends = [],
     mediaUrls = [],
   } = postData;
-
+  console.log('createPost', postData);
   return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const newPost = await tx.posts.create({
       data: {
@@ -152,9 +152,6 @@ export const getPostById = async (postId: string): Promise<any> => {
   });
 
   if (!post) return null;
-  if (post.visibility === 'private') {
-
-  }
   const hashtags = await prisma.hashtag.findMany({
     select: { name: true },
     where: {
@@ -184,26 +181,26 @@ export const getPostById = async (postId: string): Promise<any> => {
   };
 };
 
-export const getAllPostsByUserId = async (userId: string, page: number) => {
-  let limit = 10;
-  const posts = await prisma.posts.findMany({
-    where: { userId },
-    include: {
-      user: {
-        select: {
-          id: true,
-          username: true,
-          fullname: true,
-          avatarUrl: true,
-        },
-      },
-      media: true,
-    },
-    orderBy: { createdAt: 'desc' },
-    skip: (page - 1) * limit,
-    take: limit,
-  });
+// export const getAllPostsByUserId = async (userId: string, page: number) => {
+//   let limit = 10;
+//   const posts = await prisma.posts.findMany({
+//     where: { userId },
+//     include: {
+//       user: {
+//         select: {
+//           id: true,
+//           username: true,
+//           fullname: true,
+//           avatarUrl: true,
+//         },
+//       },
+//       media: true,
+//     },
+//     orderBy: { createdAt: 'desc' },
+//     skip: (page - 1) * limit,
+//     take: limit,
+//   });
 
-  const totalPosts = await prisma.posts.count({ where: { userId } });
-  return { posts, totalPosts };
-}
+//   const totalPosts = await prisma.posts.count({ where: { userId } });
+//   return { posts, totalPosts };
+// }

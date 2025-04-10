@@ -29,7 +29,7 @@ export const likePost = async (req: Request, res: Response) => {
 export const unlikePost = async (req: Request, res: Response) => {
   try {
     const postId = req.params.postId;
-    const userId = (req as any).user?.id;
+    const userId = (req as any).user?.sub;
     if (!userId) {
       return res.status(401).json({ message: "Vui lòng đăng nhập" });
     }
@@ -48,7 +48,7 @@ export const createComment = async (req: Request, res: Response) => {
   try {
     const postId = req.params.postId;
     const { content, parent_id } = req.body;
-    const userId = (req as any).user?.id;
+    const userId = (req as any).user?.sub;
     if (!userId) {
       return res.status(401).json({ message: "Vui lòng đăng nhập" });
     }
@@ -74,7 +74,7 @@ export const createComment = async (req: Request, res: Response) => {
 export const deleteComment = async (req: Request, res: Response) => {
   try {
     const commentId = req.params.commentId;
-    const userId = (req as any).user?.id;
+    const userId = (req as any).user?.sub;
     if (!userId) {
       return res.status(401).json({ message: "Vui lòng đăng nhập" });
     }
@@ -105,7 +105,7 @@ export const sharePost = async (req: Request, res: Response) => {
     const postId = req.params.postId;
     const { user_id } = req.body;
 
-    const userId = (req as any).user?.id;
+    const userId = (req as any).user?.sub;
     if (!userId) {
       return res.status(401).json({ message: "Vui lòng đăng nhập" });
     }

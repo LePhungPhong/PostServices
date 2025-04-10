@@ -1,7 +1,9 @@
 import { Router } from "express";
 import * as postController from "../controllers/post.controller";
+import * as getPostController from "../controllers/getPost.controller";
 import { asyncHandler } from "../middlewares/asyncHandler";
-import { verifyToken } from "../utils/jwt";
+import { verifyToken } from "../middlewares/jwt";
+
 
 const router = Router();
 
@@ -10,7 +12,7 @@ const router = Router();
  * @desc Lấy thông tin bài viết theo id
  * @access Private
  */
-router.get("/:userID/:page", asyncHandler(postController.getAllPostsByUserId));
+router.get("/:userId/:postType/:page/:viewerID", asyncHandler(getPostController.getAllPostsByUserId));
 
 // PRIVATE ROUTES
 router.use(verifyToken);

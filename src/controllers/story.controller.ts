@@ -8,7 +8,7 @@ export const createStory = async (req: Request, res: Response) => {
 
         let storyData: CreatePostDto = req.body.storyData;
         const mediaUrl = req.body.mediaUrl as string;
-        const userId = (req as any).user?.id;
+        const userId = (req as any).user?.sub;
         if (!userId) {
             return res.status(401).json({ message: 'Vui lòng đăng nhập' });
         }
@@ -31,7 +31,7 @@ export const createStory = async (req: Request, res: Response) => {
 export const getStoryById = async (req: Request, res: Response) => {
     try {
         const storyId = req.params.id;
-        const userId = (req as any).user?.id;
+        const userId = (req as any).user?.sub;
         if (!userId) {
             return res.status(401).json({ message: 'Vui lòng đăng nhập' });
         }
@@ -49,7 +49,7 @@ export const getStoryById = async (req: Request, res: Response) => {
 export const deletestory = async (req: Request, res: Response) => {
     try {
         const storyId = req.params.id;
-        const userId = (req as any).user?.id;
+        const userId = (req as any).user?.sub;
         if (!userId) {
             return res.status(401).json({ message: 'Vui lòng đăng nhập' });
         }

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import * as postService from "../services/post.service";
 import { CreatePostDto, UpdatePostDto } from "../types/post.types";
 
+
 export const createPost = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.sub;
@@ -9,7 +10,6 @@ export const createPost = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(401).json({ message: "Vui lòng đăng nhập" });
     }
-
     const postData: CreatePostDto = {
       ...req.body,
       user_id: userId,
@@ -31,7 +31,7 @@ export const createPost = async (req: Request, res: Response) => {
 export const updatePost = async (req: Request, res: Response) => {
   try {
     const postId = req.params.id;
-    const userId = (req as any).user?.id;
+    const userId = (req as any).user?.sub;
     if (!userId) {
       return res.status(401).json({ message: "Vui lòng đăng nhập" });
     }
@@ -59,7 +59,7 @@ export const updatePost = async (req: Request, res: Response) => {
 export const deletePost = async (req: Request, res: Response) => {
   try {
     const postId = req.params.id;
-    const userId = (req as any).user?.id;
+    const userId = (req as any).user?.sub;
     if (!userId) {
       return res.status(401).json({ message: "Vui lòng đăng nhập" });
     }
@@ -90,24 +90,26 @@ export const getPost = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllPostsByUserId = async (req: Request, res: Response) => {
-  try {
-    const userId = req.params.userId;
-    const page = parseInt(req.params.page as string) || 1;
+// export const getAllPostsByUserId = async (req: Request, res: Response) => {
+//   try {
+//     const userId = req.params.userId;
+//     const page = parseInt(req.params.page as string) || 1;
 
-    const viewerId = (req as any).user?.id;
-    if (!viewerId) {
-      return res.status(401).json({ message: "Vui lòng đăng nhập" });
-    }
+//     const viewerId = (req as any).user?.sub;
+//     if (!viewerId) {
+//       return res.status(401).json({ message: "Vui lòng đăng nhập" });
+//     }
+//     // if (userId !== viewerId && visibility !== "public") {
+//     //   return res.status(403).json({ message: "Không có quyền truy cập" });
+//     // }
+//     const posts = await postService.getAllPostsByUserId(userId, page);
 
-    const posts = await postService.getAllPostsByUserId(userId, page);
-
-    res.status(200).json({
-      message: "Lấy danh sách bài viết thành công",
-      status: "success",
-      data: posts,
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Không thể lấy danh sách bài viết" });
-  }
-};
+//     res.status(200).json({
+//       message: "Lấy danh sách bài viết thành công",
+//       status: "success",
+//       data: posts,
+//     });
+//   } catch (error) {
+//     res.status(500).json({ message: "Không thể lấy danh sách bài viết" });
+//   }
+// };
