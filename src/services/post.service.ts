@@ -2,9 +2,6 @@ import { prisma } from '../config/database';
 import { CreatePostDto, UpdatePostDto } from '../types/post.types';
 import { v4 as uuidv4 } from 'uuid';
 import { Prisma, MediaTypeEnum } from '@prisma/client';
-import { getUserById } from './test.service';
-
-
 
 export const createPost = async (postData: CreatePostDto) => {
   const {
@@ -133,7 +130,6 @@ export const deletePost = async (postId: string) => {
 
     await tx.shares.deleteMany({ where: { postId } });
     await tx.newsFeed.deleteMany({ where: { postId } });
-    await tx.notifications.deleteMany({ where: { postId } });
 
     return await tx.posts.delete({ where: { id: postId } });
   });
@@ -189,7 +185,7 @@ export const getPostById = async (postId: string): Promise<any> => {
 };
 
 export const getAllPostsByUserId = async (userId: string, page: number) => {
-  let limit=10;
+  let limit = 10;
   const posts = await prisma.posts.findMany({
     where: { userId },
     include: {

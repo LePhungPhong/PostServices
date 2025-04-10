@@ -125,7 +125,6 @@ export const deleteStory = async (storyId: string) => {
         await tx.postHashtags.deleteMany({ where: { postId: storyId } });
         await tx.postTagFriend.deleteMany({ where: { postId: storyId } });
         await tx.media.deleteMany({ where: { postId: storyId } });
-        await tx.notifications.deleteMany({ where: { postId: storyId } });
         return tx.posts.delete({ where: { id: storyId } });
     });
 };

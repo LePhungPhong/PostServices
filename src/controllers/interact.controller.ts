@@ -8,7 +8,7 @@ export const likePost = async (req: Request, res: Response) => {
     const postId = req.params.postId;
     const userId = req.body.user_id;
     if (!userId) {
-      return res.status(400).json({ message: 'ID người dùng là bắt buộc' });
+      return res.status(400).json({ message: 'Vui lòng đăng nhập' });
     }
     const like = await interactService.likePost(userId, postId);
     if ('message' in like) {
@@ -23,15 +23,15 @@ export const likePost = async (req: Request, res: Response) => {
 export const unlikePost = async (req: Request, res: Response) => {
   try {
     const postId = req.params.postId;
-    const userId = req.body.user_id;
-
+    const userId = (req as any).user?.id;
     if (!userId) {
-      return res.status(400).json({ message: 'ID người dùng là bắt buộc' });
+      return res.status(401).json({ message: 'Vui lòng đăng nhập' });
     }
+
 
     await interactService.unlikePost(userId, postId);
     res.status(200).json({ message: 'Bỏ thích thành công', status: 'success', data: null });
-  } catch (message) {
+  } catch (err) {
 
     res.status(500).json({ message: 'Không thể bỏ thích bài viết' });
   }
@@ -41,16 +41,16 @@ export const unlikePost = async (req: Request, res: Response) => {
 export const createComment = async (req: Request, res: Response) => {
   try {
     const postId = req.params.postId;
-    const { user_id, content, parent_id } = req.body;
-    if (!user_id || !content) {
-      return res.status(400).json({
-        message: 'ID người dùng và nội dung là bắt buộc'
-      });
+    const { content, parent_id } = req.body;
+    const userId = (req as any).user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: 'Vui lòng đăng nhập' });
     }
 
-    const comment = await interactService.createComment(user_id, postId, content, parent_id);
+
+    const comment = await interactService.createComment(userId, postId, content, parent_id);
     res.status(200).json({ message: 'Tạo bình luận thành công', status: 'success', data: comment });
-  } catch (message) {
+  } catch (error) {
 
     res.status(500).json({ message: 'Không thể tạo bình luận' });
   }
@@ -59,11 +59,11 @@ export const createComment = async (req: Request, res: Response) => {
 export const deleteComment = async (req: Request, res: Response) => {
   try {
     const commentId = req.params.commentId;
-    // const userId = req.body.user_id;
+    const userId = (req as any).user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: 'Vui lòng đăng nhập' });
+    }
 
-    // if (!userId) {
-    //   return res.status(400).json({ message: 'ID người dùng là bắt buộc' });
-    // }
 
     await interactService.deleteComment(commentId);
 
@@ -83,13 +83,15 @@ export const sharePost = async (req: Request, res: Response) => {
     const postId = req.params.postId;
     const { user_id } = req.body;
 
-    if (!user_id) {
-      return res.status(400).json({ message: 'ID người dùng là bắt buộc' });
+    const userId = (req as any).user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: 'Vui lòng đăng nhập' });
     }
+
 
     const share = await interactService.sharePost(user_id, postId);
     res.status(201).json({ message: 'Chia sẻ bài viết thành công', status: 'success', data: share });
-  } catch (message) {
+  } catch (error) {
     res.status(500).json({ message: 'Không thể chia sẻ bài viết' });
   }
 };
@@ -101,7 +103,7 @@ export const getPostInteractions = async (req: Request, res: Response) => {
 
     const interactions = await interactService.getPostInteractions(postId);
     res.status(200).json(interactions);
-  } catch (message) {
+  } catch (error) {
     res.status(500).json({ message: 'Không thể lấy thông tin tương tác' });
   }
 };

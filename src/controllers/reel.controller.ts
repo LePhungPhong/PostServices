@@ -8,7 +8,10 @@ export const createReel = async (req: Request, res: Response) => {
 
         let reelData = req.body.reelData;
         const mediaUrls = req.body.mediaUrls;
-
+        const userId = (req as any).user?.id;
+        if (!userId) {
+            return res.status(401).json({ message: 'Vui lòng đăng nhập' });
+        }
         if (typeof reelData === 'string') {
             try {
                 reelData = JSON.parse(reelData);
@@ -34,7 +37,10 @@ export const getReelById = async (req: Request, res: Response) => {
     try {
         const reelId = req.params.id;
         const reel = await reelService.getReelById(reelId);
-
+        const userId = (req as any).user?.id;
+        if (!userId) {
+            return res.status(401).json({ message: 'Vui lòng đăng nhập' });
+        }
         if (!reel) {
             return res.status(404).json({ message: 'Không tìm thấy reel' });
         }
@@ -47,6 +53,10 @@ export const getReelById = async (req: Request, res: Response) => {
 export const deleteReel = async (req: Request, res: Response) => {
     try {
         const reelId = req.params.id;
+        const userId = (req as any).user?.id;
+        if (!userId) {
+            return res.status(401).json({ message: 'Vui lòng đăng nhập' });
+        }
         await reelService.deleteReel(reelId);
         res.status(200).json({
             message: 'Xóa reel thành công',

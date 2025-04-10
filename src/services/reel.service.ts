@@ -120,7 +120,7 @@ export const deleteReel = async (reelId: string) => {
         await tx.postHashtags.deleteMany({ where: { postId: reelId } });
         await tx.postTagFriend.deleteMany({ where: { postId: reelId } });
         await tx.media.deleteMany({ where: { postId: reelId } });
-        await tx.notifications.deleteMany({ where: { postId: reelId } });
+
         return tx.posts.delete({ where: { id: reelId } });
     });
 };
