@@ -70,3 +70,14 @@ export const getPost = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Không thể lấy thông tin bài viết' });
   }
 };
+
+export const getAllPostsByUserId = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const page = parseInt(req.params.page as string) || 1;
+    const posts = await postService.getAllPostsByUserId(userId, page);
+    res.status(200).json({ message: 'Lấy danh sách bài viết thành công', status: 'success', data: posts });
+  } catch (error) {
+    res.status(500).json({ message: 'Không thể lấy danh sách bài viết' });
+  }
+}

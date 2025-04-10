@@ -2,6 +2,7 @@ import { prisma } from '../config/database';
 import { CreatePostDto, UpdatePostDto } from '../types/post.types';
 import { v4 as uuidv4 } from 'uuid';
 import { Prisma, MediaTypeEnum } from '@prisma/client';
+import { getUserById } from './test.service';
 
 
 
@@ -154,8 +155,10 @@ export const getPostById = async (postId: string): Promise<any> => {
     },
   });
 
-  if (!post || post.visibility === 'private') return null;
+  if (!post) return null;
+  if (post.visibility === 'private') {
 
+  }
   const hashtags = await prisma.hashtag.findMany({
     select: { name: true },
     where: {
@@ -184,3 +187,27 @@ export const getPostById = async (postId: string): Promise<any> => {
     tagged_friends: taggedFriends,
   };
 };
+
+export const getAllPostsByUserId = async (userId: string, page: number) => {
+  let limit=10;
+  const posts = await prisma.posts.findMany({
+    where: { userId },
+    include: {
+      user: {
+        select: {
+          id: true,
+          username: true,
+          fullname: true,
+          avatarUrl: true,
+        },
+      },
+      media: true,
+    },
+    orderBy: { createdAt: 'desc' },
+    skip: (page - 1) * limit,
+    take: limit,
+  });
+
+  const totalPosts = await prisma.posts.count({ where: { userId } });
+  return { posts, totalPosts };
+}

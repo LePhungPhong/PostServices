@@ -4,7 +4,7 @@ import { CreatePostDto } from '../types/post.types';
 
 export const createReel = async (req: Request, res: Response) => {
     try {
-        console.log('📥 Request body:', req.body);
+        console.log('Request body:', req.body);
 
         let reelData = req.body.reelData;
         const mediaUrls = req.body.mediaUrls;
