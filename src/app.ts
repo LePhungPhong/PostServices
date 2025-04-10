@@ -13,6 +13,7 @@ import postRoutes from "./routes/post.routes";
 import interactRoutes from "./routes/interact.routes";
 import storyRoutes from "./routes/story.route";
 import reelRoutes from "./routes/reel.routes";
+
 const app: Application = express();
 
 // ==============================
@@ -31,10 +32,10 @@ app.use((req, res, next) => {
 // ==============================
 // Khai báo route
 // ==============================
-app.get('/', (req: Request, res: Response) => {
+app.get("/", (req: Request, res: Response) => {
   res.status(200).json({
-    status: 'success',
-    message: 'Welcome to the Post API!',
+    status: "success",
+    message: "Welcome to the Post API!",
   });
 });
 app.use(`${URL_API_V1}/posts`, postRoutes);
