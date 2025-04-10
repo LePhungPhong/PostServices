@@ -1,3 +1,5 @@
+import { Datetime } from "aws-sdk/clients/costoptimizationhub";
+
 export type VisibilityEnum = 'public' | 'private' | 'friends';
 export type CensorEnum = 'approved' | 'pending' | 'rejected' | 'under_review';
 export type MediaTypeEnum = 'image' | 'video' | 'file'
@@ -12,6 +14,7 @@ export interface CreatePostDto {
   mediaUrls?: string[];
   mediaType?: MediaTypeEnum;
   postType: PostTypeEnum;
+  expired_at?: Datetime;
 }
 
 export interface UpdatePostDto {

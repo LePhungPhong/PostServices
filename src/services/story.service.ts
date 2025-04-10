@@ -20,6 +20,7 @@ export const createStory = async ({ storyData, mediaUrl }: { storyData: CreatePo
                 visibility,
                 userId: user_id,
                 postType: 'story',
+                expired_at: new Date(Date.now() + 24 * 60 * 60 * 1000),
             },
         });
         await tx.media.create({
