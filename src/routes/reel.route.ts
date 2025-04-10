@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import * as reelController from '../controllers/reel.controller';
 import { asyncHandler } from '../middlewares/asyncHandler';
-import * as getPostController from '../controllers/getPost.controller';
 const router = Router();
 /**
  * @route [POST] /reel/:id
@@ -30,5 +29,4 @@ router.delete(
     '/reel/:id', asyncHandler(reelController.deleteReel)
 );
 
-router.get("/:userId/:postType/:page/:viewerID", asyncHandler(getPostController.getAllPostsByUserId));
 export default router;

@@ -89,6 +89,8 @@ model Viewer {
 
   user Users @relation("UserViewers", fields: [userId], references: [id])
   post Posts @relation("PostViewers", fields: [postId], references: [id])
+
+  @@unique([userId, postId])
 }
 
 model Hashtag {

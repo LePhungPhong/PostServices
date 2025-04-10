@@ -1,10 +1,8 @@
 import { Router } from 'express';
 import * as storyController from '../controllers/story.controller';
 import { asyncHandler } from '../middlewares/asyncHandler';
-import * as getPostController from '../controllers/getPost.controller';
 const router = Router();
 router.post("/", asyncHandler(storyController.createStory));
 router.get("/:id", asyncHandler(storyController.getStoryById));
 router.delete("/:id", asyncHandler(storyController.deletestory));
-router.get("/:userId/:postType/:page/:viewerID", asyncHandler(getPostController.getAllPostsByUserId));
 export default router;

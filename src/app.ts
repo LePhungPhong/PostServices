@@ -9,10 +9,10 @@ import AppError from "./utils/error/AppError";
 import { HTTP_STATUS } from "./response/httpStatusCode";
 
 //import routerTest from "./routes/test.route";
-import postRoutes from "./routes/post.routes";
-import interactRoutes from "./routes/interact.routes";
+import postRoutes from "./routes/post.route";
+import interactRoutes from "./routes/interact.route";
 import storyRoutes from "./routes/story.route";
-import reelRoutes from "./routes/reel.routes";
+import reelRoutes from "./routes/reel.route";
 
 const app: Application = express();
 

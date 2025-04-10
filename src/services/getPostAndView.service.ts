@@ -118,3 +118,52 @@ export const getPostById = async (postId: string, viewerId: string) => {
         mediaUrls: post.media.map((m) => m.mediaUrl),
     };
 };
+
+
+export const recordPostView = async (postId: string, userId: string) => {
+    const existing = await prisma.viewer.findUnique({
+        where: {
+            userId_postId: {
+                userId,
+                postId,
+            },
+        },
+    });
+
+    if (!existing) {
+        return await prisma.viewer.create({
+            data: {
+                userId,
+                postId,
+                viewedAt: new Date(),
+            },
+        });
+    }
+
+    return existing;
+};
+
+
+export const countPostViews = async (postId: string) => {
+    return await prisma.viewer.count({
+        where: { postId }
+    });
+};
+
+export const getPostViewers = async (postId: string) => {
+    return await prisma.viewer.findMany({
+        where: { postId },
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    fullname: true,
+                    avatarUrl: true
+                }
+            }
+        },
+        orderBy: {
+            viewedAt: 'desc'
+        }
+    });
+};

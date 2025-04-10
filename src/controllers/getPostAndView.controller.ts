@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import * as getPostService from "../services/getPost.service";
+import * as getPostService from "../services/getPostAndView.service";
 
 
 
@@ -75,5 +75,38 @@ export const getPostByIdController = async (req: Request, res: Response) => {
     } catch (error) {
         console.error('Lỗi lấy bài viết:', error);
         return res.status(500).json({ message: 'Không thể lấy bài viết' });
+    }
+};
+
+export const handleRecordPostView = async (req: Request, res: Response) => {
+    try {
+        const { postId } = req.params;
+        const viewerId = (req as any).user?.sub;
+        const view = await getPostService.recordPostView(postId, viewerId);
+        res.status(200).json({ message: "View recorded", data: view });
+    } catch (error) {
+        res.status(500).json({ message: "Error recording view", error });
+    }
+};
+
+export const handleCountPostViews = async (req: Request, res: Response) => {
+    try {
+        const { postId } = req.params;
+
+        const count = await getPostService.countPostViews(postId);
+        res.status(200).json({ postId, views: count });
+    } catch (error) {
+        res.status(500).json({ message: "Error getting view count", error });
+    }
+};
+
+export const handleGetPostViewers = async (req: Request, res: Response) => {
+    try {
+        const { postId } = req.params;
+
+        const viewers = await getPostService.getPostViewers(postId);
+        res.status(200).json({ postId, viewers });
+    } catch (error) {
+        res.status(500).json({ message: "Error getting viewers", error });
     }
 };
