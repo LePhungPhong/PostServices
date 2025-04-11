@@ -1,7 +1,19 @@
 import { prisma } from '../config/database';
 import { PostTypeEnum, Prisma } from '@prisma/client';
+import axios from 'axios';
 
-
+export const isFriendWithViewer = async (userId: string, viewerId: string): Promise<boolean> => {
+    try {
+        const response = await axios.post<{ isFriend: boolean }>(
+            '/api/v1/follows/check-friend',
+            { userId, viewerId }
+        );
+        return response.data.isFriend ?? false;
+    } catch (error) {
+        console.error('Lỗi khi gọi friend-service:', error);
+        return false;
+    }
+};
 export const getAllPostsByUserId = async (
     userId: string,
     page: number,
@@ -13,23 +25,31 @@ export const getAllPostsByUserId = async (
     const postTypeFilter = isValidPostType ? (postType as PostTypeEnum) : undefined;
     const limit = postTypeFilter === 'reel' || postTypeFilter === 'story' ? 1 : 10;
     const skip = (page - 1) * limit;
+
+    let visibilityFilter: Prisma.PostsWhereInput = {};
+
+    if (!isOwner) {
+        const isFriend = await isFriendWithViewer(userId, viewerId);
+
+        visibilityFilter = {
+            OR: [
+                { visibility: 'public' },
+                isFriend ? { visibility: 'friends' } : undefined,
+                {
+                    taggedFriends: {
+                        some: {
+                            userId: viewerId,
+                        },
+                    },
+                },
+            ].filter(Boolean) as Prisma.PostsWhereInput[],
+        };
+    }
+
     const whereClause: Prisma.PostsWhereInput = {
         userId,
         ...(postTypeFilter && { postType: postTypeFilter }),
-        ...(isOwner
-            ? {}
-            : {
-                OR: [
-                    { visibility: 'public' },
-                    {
-                        taggedFriends: {
-                            some: {
-                                userId: viewerId,
-                            },
-                        },
-                    },
-                ],
-            }),
+        ...visibilityFilter,
     };
 
     const [posts, totalPosts] = await Promise.all([
@@ -55,6 +75,7 @@ export const getAllPostsByUserId = async (
 
     return { posts, totalPosts };
 };
+
 
 
 
