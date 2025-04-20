@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import * as getPostAndView from "../services/getPostAndView.service";
 import { asyncHandler } from '../middlewares/asyncHandler';
-import { getAllPostsByUserId } from '../services/getPostAndView.service';
 
 const router = Router();
 
