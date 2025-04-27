@@ -2,6 +2,9 @@ import { prisma } from '../config/database';
 import { PostTypeEnum, Prisma } from '@prisma/client';
 import axios from 'axios';
 
+/**
+ * Kiểm tra xem viewerId có phải bạn bè của userId hay không
+ */
 export const isFriendWithViewer = async (userId: string, viewerId: string): Promise<boolean> => {
     try {
         const response = await axios.post<{ isFriend: boolean }>(
@@ -14,6 +17,13 @@ export const isFriendWithViewer = async (userId: string, viewerId: string): Prom
         return false;
     }
 };
+
+/**
+ * Lấy tất cả bài post của một user theo phân trang
+ * - Nếu viewer là chủ bài post -> trả toàn bộ bài
+ * - Nếu viewer là người khác -> chỉ trả bài public/friends hoặc có gắn thẻ viewer
+ * - Có lọc theo postType nếu được truyền vào
+ */
 export const getAllPostsByUserId = async (
     userId: string,
     page: number,
@@ -37,9 +47,7 @@ export const getAllPostsByUserId = async (
                 isFriend ? { visibility: 'friends' } : undefined,
                 {
                     taggedFriends: {
-                        some: {
-                            userId: viewerId,
-                        },
+                        some: { userId: viewerId },
                     },
                 },
             ].filter(Boolean) as Prisma.PostsWhereInput[],
@@ -76,9 +84,11 @@ export const getAllPostsByUserId = async (
     return { posts, totalPosts };
 };
 
-
-
-
+/**
+ * Lấy chi tiết bài post theo postId
+ * - Bao gồm: thông tin user, media, hashtag, tagged friends
+ * - Nếu viewer không phải chủ bài viết và visibility khác public -> trả "forbidden"
+ */
 export const getPostById = async (postId: string, viewerId: string) => {
     const post = await prisma.posts.findUnique({
         where: { id: postId },
@@ -140,7 +150,10 @@ export const getPostById = async (postId: string, viewerId: string) => {
     };
 };
 
-
+/**
+ * Ghi nhận lượt xem bài post của user
+ * - Nếu đã từng xem rồi thì không thêm mới
+ */
 export const recordPostView = async (postId: string, userId: string) => {
     const existing = await prisma.viewer.findUnique({
         where: {
@@ -164,13 +177,19 @@ export const recordPostView = async (postId: string, userId: string) => {
     return existing;
 };
 
-
+/**
+ * Đếm tổng số lượt xem của bài post
+ */
 export const countPostViews = async (postId: string) => {
     return await prisma.viewer.count({
         where: { postId }
     });
 };
 
+/**
+ * Lấy danh sách những user đã xem bài post
+ * - Sắp xếp theo thời gian xem mới nhất
+ */
 export const getPostViewers = async (postId: string) => {
     return await prisma.viewer.findMany({
         where: { postId },
