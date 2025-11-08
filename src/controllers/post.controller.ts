@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import * as postService from "../services/post.service";
 import { CreatePostDto, UpdatePostDto } from "../types/post.types";
 
-
 export const createPost = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.sub;
@@ -24,7 +23,9 @@ export const createPost = async (req: Request, res: Response) => {
       data: newPost,
     });
   } catch (error) {
-    res.status(500).json({ message: "Không thể tạo bài viết" });
+    if (error instanceof Error) {
+      res.status(400).json({ message: error.message });
+    } else res.status(500).json({ message: "Không thể tạo bài viết" });
   }
 };
 

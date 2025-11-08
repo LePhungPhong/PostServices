@@ -15,7 +15,6 @@ import storyRoutes from "./routes/story.route";
 import reelRoutes from "./routes/reel.route";
 
 const app: Application = express();
-
 // ==============================
 // Middleware cấu hình hệ thống
 // ==============================
