@@ -1,8 +1,5 @@
 import { Request, Response } from "express";
 import * as getPostService from "../services/getPostAndView.service";
-
-
-
 export const getAllPostsByUserId = async (req: Request, res: Response) => {
     try {
         const userId = req.params.userId;
