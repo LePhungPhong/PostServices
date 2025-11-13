@@ -15,7 +15,7 @@ export async function getNatsClient(): Promise<NatsConnection> {
 
 export async function publish(subject: string, data: any) {
   const c = await getNatsClient();
-  console.log("publish envent::: ", { subject, data });
+  console.log({ subject, data });
 
   c.publish(subject, jc.encode(data));
 }

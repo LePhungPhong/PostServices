@@ -16,7 +16,7 @@ const publishEngagement = async (postId: string) => {
 
     if (!post) return;
 
-    await publish("post.engagement.updated", {
+    await publish("post.engagement", {
       id: postId,
       like_count: post.likeCount ?? 0,
       comment_count: post.commentCount ?? 0,
