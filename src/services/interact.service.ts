@@ -1,5 +1,15 @@
 import { prisma } from '../config/database';
 import { v4 as uuidv4 } from 'uuid';
+
+export const hasLiked = async (userId: string, postId: string) => {
+  const like = await prisma.likes.findUnique({
+    where: { userId_postId: { userId, postId } }
+  });
+
+  return !!like;
+};
+
+
 // LIKE
 export const likePost = async (userId: string, postId: string) => {
   const post = await prisma.posts.findUnique({ where: { id: postId } });
