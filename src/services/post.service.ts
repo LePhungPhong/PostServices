@@ -1,8 +1,8 @@
 // Import thư viện và các kiểu dữ liệu cần thiết
-import { prisma } from '../config/database'; // Prisma instance để thao tác với database
-import { CreatePostDto, UpdatePostDto } from '../types/post.types'; // Kiểu dữ liệu cho việc tạo/cập nhật bài viết
-import { v4 as uuidv4 } from 'uuid'; // Tạo UUID cho các bản ghi
-import { Prisma, MediaTypeEnum } from '@prisma/client'; // Prisma types và enum
+import { prisma } from "../config/database"; // Prisma instance để thao tác với database
+import { Prisma, MediaTypeEnum } from "../generated/prisma";
+import { CreatePostDto, UpdatePostDto } from "../types/post.types"; // Kiểu dữ liệu cho việc tạo/cập nhật bài viết
+import { v4 as uuidv4 } from "uuid"; // Tạo UUID cho các bản ghi
 
 // Hàm tạo bài viết mới
 export const createPost = async (postData: CreatePostDto) => {
@@ -10,12 +10,12 @@ export const createPost = async (postData: CreatePostDto) => {
     user_id,
     title,
     content,
-    visibility = 'public',
+    visibility = "public",
     hashtags = [],
     tagged_friends = [],
     mediaUrls = [],
   } = postData;
-  console.log('createPost', postData);
+  console.log("createPost", postData);
 
   // Thực hiện các thao tác trong một transaction
   return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
@@ -80,7 +80,7 @@ export const updatePost = async (postId: string, postData: UpdatePostDto) => {
 
   // Kiểm tra bài viết có tồn tại không
   const existingPost = await prisma.posts.findUnique({ where: { id: postId } });
-  if (!existingPost) throw new Error('Không tìm thấy bài viết');
+  if (!existingPost) throw new Error("Không tìm thấy bài viết");
 
   // Thực hiện cập nhật trong transaction
   return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
@@ -128,7 +128,7 @@ export const updatePost = async (postId: string, postData: UpdatePostDto) => {
 // Hàm xoá bài viết
 export const deletePost = async (postId: string) => {
   const existingPost = await prisma.posts.findUnique({ where: { id: postId } });
-  if (!existingPost) throw new Error('Không tìm thấy bài viết');
+  if (!existingPost) throw new Error("Không tìm thấy bài viết");
 
   return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     // Xoá liên kết với hashtags, bạn bè được tag, media, lượt thích
@@ -200,4 +200,3 @@ export const getPostById = async (postId: string): Promise<any> => {
     tagged_friends: taggedFriends,
   };
 };
-
