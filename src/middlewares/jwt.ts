@@ -1,9 +1,5 @@
 import jwt from "jsonwebtoken";
 import CatchAsync from "../utils/error/CatchAsync";
-
-/**
- * Middleware xác thực JWT từ header Authorization
- */
 export const verifyToken = CatchAsync(async (req, res, next) => {
   const secret = process.env.JWT_SECRET?.trim();
   if (!secret) throw new Error("Chưa cấu hình JWT_SECRET");

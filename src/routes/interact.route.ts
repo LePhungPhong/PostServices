@@ -42,4 +42,5 @@ router.post("/share/:postId", asyncHandler(interactController.sharePost));
  */
 router.get("/:postId", asyncHandler(interactController.getPostInteractions));
 
+router.get('/hasLiked/:postId', asyncHandler(interactController.hasLikedPost));
 export default router;

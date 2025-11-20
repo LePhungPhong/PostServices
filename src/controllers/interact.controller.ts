@@ -1,5 +1,21 @@
 import { Request, Response } from "express";
 import * as interactService from "../services/interact.service";
+import { hasLiked } from '../services/interact.service';
+
+
+export const hasLikedPost = async (req: Request, res: Response) => {
+  try {
+    const postId = req.params.postId;
+    const userId = req.body.user_id;
+    if (!userId) {
+      return res.status(400).json({ message: "Vui lòng đăng nhập" });
+    }
+    const liked = await hasLiked(userId, postId);
+    res.status(200).json({ liked });
+  } catch (error) {
+    res.status(500).json({ message: "Không thể kiểm tra trạng thái thích bài viết" });
+  }
+};
 
 // ====================== LIKE ======================
 export const likePost = async (req: Request, res: Response) => {
