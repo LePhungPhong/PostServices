@@ -19,8 +19,13 @@ export async function listenProfileUpdated() {
 
       await prisma.users.upsert({
         where: { id: data.user_id },
-        update: { fullname, username: data.username },
-        create: { id: data.user_id, fullname, username: data.username },
+        update: { fullname, username: data.username, avatarUrl: data.avatar },
+        create: {
+          id: data.user_id,
+          fullname,
+          username: data.username,
+          avatarUrl: data.avatar,
+        },
       });
 
       console.log(`✅ Profile upserted for user_id: ${data.user_id}`);
