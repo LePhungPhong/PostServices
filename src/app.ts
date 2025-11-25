@@ -1,5 +1,4 @@
 import express, { Application, NextFunction, Request, Response } from "express";
-import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 
@@ -19,8 +18,6 @@ const app: Application = express();
 // Middleware cấu hình hệ thống
 // ==============================
 app.use(helmet()); // Bảo mật HTTP headers
-// app.use(cors(corsOptions)); // Cấu hình CORS
-//app.use(limiter); // Giới hạn số lượng request
 app.use(cookieParser()); // Parse cookie
 app.use(express.json({ limit: "10mb" })); // Parse JSON body với giới hạn dung lượng
 app.use((req, res, next) => {
