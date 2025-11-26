@@ -12,6 +12,7 @@ import postRoutes from "./routes/post.route";
 import interactRoutes from "./routes/interact.route";
 import storyRoutes from "./routes/story.route";
 import reelRoutes from "./routes/reel.route";
+import getPostAndView from "./routes/getPostAndView.route";
 
 const app: Application = express();
 // ==============================
@@ -34,6 +35,7 @@ app.get("/", (req: Request, res: Response) => {
     message: "Welcome to the Post API!",
   });
 });
+app.use(`${URL_API_V1}/views`, getPostAndView);
 app.use(`${URL_API_V1}/posts`, postRoutes);
 app.use(`${URL_API_V1}/interactions`, interactRoutes);
 app.use(`${URL_API_V1}/stories`, storyRoutes);

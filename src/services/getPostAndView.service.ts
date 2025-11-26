@@ -1,31 +1,10 @@
 import { prisma } from "../config/database";
-import axios from "axios";
 import { PostTypeEnum, Prisma } from "../generated/prisma";
 
 /**
- * Kiểm tra xem viewerId có phải bạn bè của userId hay không
- */
-export const isFriendWithViewer = async (
-  userId: string,
-  viewerId: string
-): Promise<boolean> => {
-  try {
-    const response = await axios.post<{ isFriend: boolean }>(
-      "/api/v1/follows/check-friend",
-      { userId, viewerId }
-    );
-    return response.data.isFriend ?? false;
-  } catch (error) {
-    console.error("Lỗi khi gọi friend-service:", error);
-    return false;
-  }
-};
-
-/**
  * Lấy tất cả bài post của một user theo phân trang
- * - Nếu viewer là chủ bài post -> trả toàn bộ bài
- * - Nếu viewer là người khác -> chỉ trả bài public/friends hoặc có gắn thẻ viewer
- * - Có lọc theo postType nếu được truyền vào
+ * - Nếu viewer là chủ bài post → trả toàn bộ bài
+ * - Nếu viewer là người khác → chỉ trả bài public hoặc có gắn thẻ viewer
  */
 export const getAllPostsByUserId = async (
   userId: string,
@@ -34,12 +13,15 @@ export const getAllPostsByUserId = async (
   postType?: string
 ) => {
   const isOwner = userId === viewerId;
+
   const isValidPostType = Object.values(PostTypeEnum).includes(
     postType as PostTypeEnum
   );
+
   const postTypeFilter = isValidPostType
     ? (postType as PostTypeEnum)
     : undefined;
+
   const limit =
     postTypeFilter === "reel" || postTypeFilter === "story" ? 1 : 10;
   const skip = (page - 1) * limit;
@@ -47,18 +29,15 @@ export const getAllPostsByUserId = async (
   let visibilityFilter: Prisma.PostsWhereInput = {};
 
   if (!isOwner) {
-    const isFriend = await isFriendWithViewer(userId, viewerId);
-
     visibilityFilter = {
       OR: [
         { visibility: "public" },
-        isFriend ? { visibility: "friends" } : undefined,
         {
           taggedFriends: {
             some: { userId: viewerId },
           },
         },
-      ].filter(Boolean) as Prisma.PostsWhereInput[],
+      ],
     };
   }
 
@@ -80,7 +59,12 @@ export const getAllPostsByUserId = async (
             avatarUrl: true,
           },
         },
-        media: true,
+        media: {
+          select: {
+            mediaUrl: true,
+            mediaType: true,
+          },
+        },
       },
       orderBy: { createdAt: "desc" },
       skip,
@@ -94,8 +78,6 @@ export const getAllPostsByUserId = async (
 
 /**
  * Lấy chi tiết bài post theo postId
- * - Bao gồm: thông tin user, media, hashtag, tagged friends
- * - Nếu viewer không phải chủ bài viết và visibility khác public -> trả "forbidden"
  */
 export const getPostById = async (postId: string, viewerId: string) => {
   const post = await prisma.posts.findUnique({
@@ -123,6 +105,8 @@ export const getPostById = async (postId: string, viewerId: string) => {
   }
 
   const isOwner = viewerId === post.userId;
+
+  // 🔥 Bỏ check friend — chỉ kiểm tra PUBLIC
   if (!isOwner && post.visibility !== "public") {
     return "forbidden";
   }
@@ -159,8 +143,7 @@ export const getPostById = async (postId: string, viewerId: string) => {
 };
 
 /**
- * Ghi nhận lượt xem bài post của user
- * - Nếu đã từng xem rồi thì không thêm mới
+ * Ghi nhận view
  */
 export const recordPostView = async (postId: string, userId: string) => {
   const existing = await prisma.viewer.findUnique({
@@ -186,7 +169,7 @@ export const recordPostView = async (postId: string, userId: string) => {
 };
 
 /**
- * Đếm tổng số lượt xem của bài post
+ * Đếm view
  */
 export const countPostViews = async (postId: string) => {
   return await prisma.viewer.count({
@@ -195,8 +178,7 @@ export const countPostViews = async (postId: string) => {
 };
 
 /**
- * Lấy danh sách những user đã xem bài post
- * - Sắp xếp theo thời gian xem mới nhất
+ * Danh sách người xem
  */
 export const getPostViewers = async (postId: string) => {
   return await prisma.viewer.findMany({

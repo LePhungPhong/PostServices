@@ -4,5 +4,5 @@ import { startAllListeners } from "./services/listen.service";
 
 app.listen(env.port, "0.0.0.0", () => {
   startAllListeners();
-  console.log(`Server is running at http://localhost:${env.port}`);
+  console.log(`Server is running at https://localhost:${env.port}`);
 });
