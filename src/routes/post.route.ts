@@ -3,7 +3,6 @@ import * as postController from "../controllers/post.controller";
 import { asyncHandler } from "../middlewares/asyncHandler";
 import { verifyToken } from "../middlewares/jwt";
 
-
 const router = Router();
 
 router.use(verifyToken);
@@ -27,5 +26,10 @@ router.put("/:id", asyncHandler(postController.updatePost));
  * @access Private
  */
 router.delete("/:id", asyncHandler(postController.deletePost));
+
+router.get("/dashboard", asyncHandler(postController.dashboard));
+router.get("/count", asyncHandler(postController.countPost));
+router.get("/weekly", asyncHandler(postController.weeklyPostActivity));
+router.get("/recent", asyncHandler(postController.recentPostActivities));
 
 export default router;
