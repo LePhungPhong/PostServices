@@ -304,3 +304,81 @@ export const getPostById = async (postId: string): Promise<any> => {
     tagged_friends: taggedFriends,
   };
 };
+
+// ===========================
+// COUNT POSTS
+// ===========================
+export const getCountPost = async () => {
+  const count = await prisma.posts.count();
+  return count;
+};
+
+// ===========================
+// WEEKLY POST ACTIVITY
+// ===========================
+export const getWeeklyPostActivity = async () => {
+  const result = [];
+
+  const days = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+
+  const today = new Date();
+  const currentWeekDay = today.getDay(); // 0 = CN, 1 = T2
+
+  for (let i = 1; i <= 7; i++) {
+    // Tính ngày tương ứng trong tuần
+    // i = 1 → T2, i = 7 → CN
+    const diff = i - currentWeekDay;
+    const targetDate = new Date(today);
+    targetDate.setDate(today.getDate() + diff);
+
+    const start = new Date(targetDate);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(targetDate);
+    end.setHours(23, 59, 59, 999);
+
+    const postsCount = await prisma.posts.count({
+      where: {
+        createdAt: {
+          gte: start,
+          lte: end,
+        },
+      },
+    });
+
+    result.push({
+      day: days[i - 1],
+      posts: postsCount,
+    });
+  }
+
+  return result;
+};
+
+// ===========================
+// RECENT POST ACTIVITIES
+// ===========================
+export const getRecentPostActivities = async () => {
+  const recentPosts = await prisma.posts.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 10,
+    include: {
+      user: {
+        select: {
+          id: true,
+          username: true,
+          fullname: true,
+        },
+      },
+    },
+  });
+
+  return recentPosts.map((post) => ({
+    type: "post_created",
+    message: `${post.user?.fullname || post.user?.username} đã đăng bài mới`,
+    postId: post.id,
+    time: post.createdAt,
+  }));
+};

@@ -133,3 +133,64 @@ export const getPost = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Không thể lấy thông tin bài viết" });
   }
 };
+
+export const countPost = async (_: Request, res: Response) => {
+  try {
+    const count = await postService.getCountPost();
+
+    if (!count) {
+      return res.status(404).json({ message: "Đếm bài viết thất bại" });
+    }
+
+    res.status(200).json({ status: "success", data: count });
+  } catch (error) {
+    res.status(500).json({ message: "Không thể lấy số lượng bài viết" });
+  }
+};
+
+export const weeklyPostActivity = async (_: Request, res: Response) => {
+  try {
+    const post = await postService.getWeeklyPostActivity();
+
+    if (!post) {
+      return res.status(404).json({ message: "Đếm bài viết thất bại" });
+    }
+
+    res.status(200).json({ status: "success", data: post });
+  } catch (error) {
+    res.status(500).json({ message: "Không thể lấy số lượng bài viết" });
+  }
+};
+
+export const recentPostActivities = async (_: Request, res: Response) => {
+  try {
+    const post = await postService.getRecentPostActivities();
+
+    if (!post) {
+      return res.status(404).json({ message: "Đếm bài viết thất bại" });
+    }
+
+    res.status(200).json({ status: "success", data: post });
+  } catch (error) {
+    res.status(500).json({ message: "Không thể lấy số lượng bài viết" });
+  }
+};
+
+export const dashboard = async (_: Request, res: Response) => {
+  try {
+    const count = await postService.getCountPost();
+    const postWeekly = await postService.getWeeklyPostActivity();
+    const postRecent = await postService.getRecentPostActivities();
+
+    if (!count) {
+      return res.status(404).json({ message: "Đếm bài viết thất bại" });
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: { count, recent: postRecent, weekly: postWeekly },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Không thể lấy số lượng bài viết" });
+  }
+};
